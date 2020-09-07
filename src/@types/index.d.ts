@@ -9,6 +9,6 @@ interface UserProps {
 
 interface ServiceProps {
     id: number;
-    label: string;
+    name: string;
     image_url: string;
 }

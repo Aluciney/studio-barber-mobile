@@ -12,6 +12,8 @@ import Service from '../../components/Service';
 import { FlatList, Image, BackHandler } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import api from '../../services/api'; 
+
 const services = [
     {
         id: 1,
@@ -70,6 +72,7 @@ const Home: React.FC<HomeProps> = () => {
     const [selected, setSelected] = useState(new Map());
     const [next, setNext] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [services, setServices] = useState<ServiceProps[] | null>(null);
 
     function renderItem({ item }: ItemsProps) {
         return (
@@ -90,6 +93,16 @@ const Home: React.FC<HomeProps> = () => {
         },
         [selected],
     );
+
+    useEffect(() => {
+        setLoading(true);
+        async function initialLoading(){
+            const response = await api.get('/services');
+            setServices(response.data);
+            setLoading(false);
+        }
+        initialLoading();
+    },[]);
 
     useEffect(() => {
         var verify = false;
@@ -121,13 +134,6 @@ const Home: React.FC<HomeProps> = () => {
             }
         }
     }, [next]);
-
-    useEffect(()=>{
-        setLoading(true);
-        setTimeout(()=>{
-            setLoading(false);
-        },3000);
-    },[]);
 
     function backAction() {
         setSelected(new Map())

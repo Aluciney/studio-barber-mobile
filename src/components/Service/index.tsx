@@ -1,7 +1,6 @@
 import React from 'react';
 import { Image } from 'react-native';
 import GloboService from '../../assets/globo_service.png';
-import CorteCabelo from '../../assets/corte_cabelo.png';
 
 import {
     Container,
@@ -29,8 +28,8 @@ const Service: React.FC<ServicesProps> = ({ service, selected, onSelect, disable
             <ImageGloboService
                 source={GloboService}
             />
-            <Image source={CorteCabelo}/>
-            <Label numberOfLines={1}>{service.label}</Label>
+            <Image source={{ uri: service.image_url, width: 65, height: 65, }} />
+            <Label numberOfLines={1}>{service.name}</Label>
         </Container>
     );
 }
