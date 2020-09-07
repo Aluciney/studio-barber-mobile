@@ -63,7 +63,7 @@ const ReservationStore = ( ) => {
     const [categorySelected, setCategorySelected] = useState(null);
     const [minMaxDate, setMinMaxDate] = useState<MinMaxDate>({ min: '', max: '' });
     const [times, setTimes] = useState<string[]>([]);
-    const [timesDisabled, setTimesDisabled] = useState<string[]>([]);
+    const [timesBusy, setTimesBusy] = useState<string[]>([]);
     const [loadingDate, setLoadingDate] = useState(true);
     const [loadingTime, setLoadingTime] = useState(true);
 
@@ -74,7 +74,7 @@ const ReservationStore = ( ) => {
         setTimeSelected(null);
         api.get(`/dates/${day.dateString}`).then(response => {
             setTimes(response.data.times);
-            setTimesDisabled(response.data.timesDisabled);
+            setTimesBusy(response.data.timesBusy);
             setLoadingTime(false);
         }).catch(error => {});
     }
@@ -121,7 +121,7 @@ const ReservationStore = ( ) => {
                 ) : (
                     <Time
                         times={times}
-                        disableds={timesDisabled}
+                        disableds={timesBusy}
                         onPress={setTimeSelected}
                         timeSelected={timeSelected}
                     />
