@@ -4,7 +4,7 @@ export const Container = styled.TouchableOpacity.attrs({
     activeOpacity: 0.5,
 })`
     width: 100px;
-    height: 100px;
+    height: 105px;
     padding: 5px;
     position: relative;
     border-top-left-radius: 15px;
@@ -20,7 +20,7 @@ export const Label = styled.Text`
     color: #FFF;
     font-size: 12px;
     font-family: roboto_500;
-    margin-top: 5px;
+    margin-top: 8px;
     margin-bottom: 1px;
 `;
 

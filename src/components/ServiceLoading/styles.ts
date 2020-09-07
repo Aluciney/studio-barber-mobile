@@ -3,7 +3,7 @@ import ShimmerPlaceHolder from 'react-native-shimmer-placeholder';
 
 export const Container = styled.View`
     width: 100px;
-    height: 100px;
+    height: 105px;
     padding: 5px;
     position: relative;
     border-top-left-radius: 15px;
@@ -18,7 +18,7 @@ export const Container = styled.View`
 export const Label = styled(ShimmerPlaceHolder)`
     height: 8px;
     width: 70px;
-    margin-top: 5px;
+    margin-top: 8px;
     margin-bottom: 1px;
 `;
 

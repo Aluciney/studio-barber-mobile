@@ -1,62 +1,23 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { FlatList, Image, BackHandler } from 'react-native';
 
+import api from '../../services/api'; 
+
+import Button from '../../components/Button';
 import ContainerComponent from '../../components/ContainerComponent';
+import Label from '../../components/Label';
+import Line from '../../components/Line';
+import NameLink from '../../components/NameLink';
+import Service from '../../components/Service';
+import ServiceLoading from '../../components/ServiceLoading';
+
+import LogoName from '../../assets/logo_name.png';
 
 import {
     GroupView
 } from './styles';
-import Label from '../../components/Label';
-import Line from '../../components/Line';
-import { useNavigation } from '@react-navigation/native';
-import Service from '../../components/Service';
-import { FlatList, Image, BackHandler } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-
-import api from '../../services/api'; 
-
-const services = [
-    {
-        id: 1,
-        label: 'Corte de cabelo',
-        image_url: ''
-    },
-    {
-        id: 2,
-        label: 'Corte da barba',
-        image_url: ''
-    },
-    {
-        id: 3,
-        label: 'Corte da barba',
-        image_url: ''
-    },
-    {
-        id: 4,
-        label: 'Corte da barba',
-        image_url: ''
-    },
-    {
-        id: 5,
-        label: 'Corte da barba',
-        image_url: ''
-    },
-    {
-        id: 6,
-        label: 'Corte da barba',
-        image_url: ''
-    },
-    {
-        id: 7,
-        label: 'Corte da barba',
-        image_url: ''
-    },
-
-];
-
-import LogoName from '../../assets/logo_name.png';
-import Button from '../../components/Button';
-import NameLink from '../../components/NameLink';
-import ServiceLoading from '../../components/ServiceLoading';
 
 interface ItemsProps {
     item: ServiceProps;

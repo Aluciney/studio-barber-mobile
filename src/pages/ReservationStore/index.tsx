@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 
 import { Calendar, LocaleConfig } from 'react-native-calendars';
@@ -8,7 +8,6 @@ LocaleConfig.locales['br'] = {
     monthNamesShort: ['Jane.', 'Feve.', 'Març', 'Abri', 'Maio', 'Junh', 'Julh.', 'Agos', 'Sete.', 'Outu.', 'Nove.', 'Deze.'],
     dayNames: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
     dayNamesShort: ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sab.'],
-    // today: 'Hoje'
 };
 
 LocaleConfig.defaultLocale = 'br';
@@ -26,6 +25,9 @@ import {
     Container,
     NoteInput
 } from './styles';
+
+import api from '../../services/api';
+import TimeLoading from '../../components/TimeLoading';
 
 const categories = [
     {
@@ -46,17 +48,48 @@ const categories = [
     },
 ];
 
+interface MinMaxDate {
+    max: string;
+    min: string;
+}
+
 const ReservationStore = ( ) => {
 
     const navigation = useNavigation();
 
     const [markedDate, setMarkedDate] = useState({});
+    const [datesDisabled, setDatesDisabled] = useState({});
     const [timeSelected, setTimeSelected] = useState(null);
     const [categorySelected, setCategorySelected] = useState(null);
+    const [minMaxDate, setMinMaxDate] = useState<MinMaxDate>({ min: '', max: '' });
+    const [times, setTimes] = useState<string[]>([]);
+    const [timesDisabled, setTimesDisabled] = useState<string[]>([]);
+    const [loadingDate, setLoadingDate] = useState(true);
+    const [loadingTime, setLoadingTime] = useState(true);
 
-    function handleSelectDate(day) {
-        setMarkedDate({ [day.dateString]: { selected: true, selectedColor: '#99C791' } });
+    function handleSelectDate(day: any) {
+        setLoadingTime(true);
+        var new_markedDate = { ...datesDisabled, [day.dateString]: { selected: true, selectedColor: '#99C791' } };
+        setMarkedDate(new_markedDate);
+        setTimeSelected(null);
+        api.get(`/dates/${day.dateString}`).then(response => {
+            setTimes(response.data.times);
+            setTimesDisabled(response.data.timesDisabled);
+            setLoadingTime(false);
+        }).catch(error => {});
     }
+
+    useEffect(()=>{
+        function loadingMaxMinDate(){
+            api.get('/dates').then(response => {
+                setMinMaxDate(response.data.range_date);
+                setDatesDisabled(response.data.dates_disabled);
+                setMarkedDate(response.data.dates_disabled);
+                setLoadingDate(false);
+            }).catch(error => {});
+        } 
+        loadingMaxMinDate();
+    },[]);
 
     return (
         <ContainerComponent>
@@ -69,6 +102,7 @@ const ReservationStore = ( ) => {
                 <Calendar
                     onDayPress={day => handleSelectDate(day)}
                     markedDates={markedDate}
+
                     firstDay={1}
                     disableArrowLeft={true}
                     disableArrowRight={true}
@@ -76,17 +110,23 @@ const ReservationStore = ( ) => {
                         borderRadius: 15,
                         paddingBottom: 5,
                     }}
+                    minDate={minMaxDate.min}
+                    maxDate={minMaxDate.max}
                 />
                 <Label title="Horário" style={{ marginTop: 10, }} />
                 <Line />
                 <SubLabel title="Por favor, selecione um horário" />
+                {loadingTime ? (
+                    <TimeLoading />
+                ) : (
+                    <Time
+                        times={times}
+                        disableds={timesDisabled}
+                        onPress={setTimeSelected}
+                        timeSelected={timeSelected}
+                    />
+                )}
 
-                <Time
-                    times={['09:00 AM', '10:00 AM', '11:00 AM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM', '09:00 PM']}
-                    disableds={['02:00 PM', '07:00 PM']}
-                    onPress={setTimeSelected}
-                    timeSelected={timeSelected}
-                />
                 <Label title="Categorias" style={{ marginTop: 10, }} />
                 <Line />
                 <SubLabel title="Por favor, selecione uma categoria" />
@@ -117,7 +157,7 @@ const ReservationStore = ( ) => {
                         marginBottom: 50,
                         alignSelf: 'center',
                     }}
-                    onPress={ () => navigation.goBack() }
+                    onPress={ () => navigation.goBack }
                 />
             </Container>
         </ContainerComponent>
