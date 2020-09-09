@@ -20,7 +20,9 @@
       "supportsTablet": true,
       "userInterfaceStyle": "dark"
     },
-    "android": {},
+    "android": {
+      "useNextNotificationsApi": true
+    },
     "androidStatusBar": {
       "barStyle": "light-content",
       "backgroundColor": "#383443"

@@ -8,15 +8,16 @@ interface ButtonProps {
     onPress: () => {};
     style?: any;
     loading?: boolean;
+    disabled?: boolean;
 }
 
-const Button: React.FC<ButtonProps> = ({ title, onPress, style, loading = false }) => {
+const Button: React.FC<ButtonProps> = ({ title, onPress, style, loading = false, disabled = false }) => {
 
     return (
         <Container
             onPress={onPress}
-            style={[style,{ backgroundColor : loading ? '#67482B' : '#8E633B' }]}
-            disabled={loading}
+            style={[style,{ backgroundColor : loading || disabled ?  '#67482B' : '#8E633B' }]}
+            disabled={loading || disabled}
         >
             {loading ? (
                 <>

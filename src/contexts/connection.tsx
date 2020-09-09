@@ -28,8 +28,9 @@ export const ConnectionProvider: React.FC = ({ children }) => {
             showMessage({
                 message: 'Sem internet!',
                 animated: true,
-                type: 'danger',
                 autoHide: false,
+                type: 'danger',
+                icon: 'danger',
             });
         }
     },[isConnected]); 

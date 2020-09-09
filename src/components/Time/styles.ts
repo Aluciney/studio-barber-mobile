@@ -7,12 +7,17 @@ export const Container = styled.View`
     justify-content: center;
 `;
 
-export const TimeButton = styled.TouchableOpacity`
+interface TimeButtonProps {
+    disabled: boolean | null;
+    selected: boolean | null;
+}
+
+export const TimeButton = styled.TouchableOpacity<TimeButtonProps>`
     width: 30%;
     height: 30px;
     align-items: center;
     justify-content: center;
-    background-color: ${ props => props.disabled ? '#B5B5B510' : props.selected ? '#99C791' : '#B5B5B570'};
+    background-color: ${ (props: TimeButtonProps) => props.disabled ? '#B5B5B510' : props.selected ? '#99C791' : '#B5B5B570'};
     padding-left: 10px;
     padding-right: 10px;
     margin-left: 5px;
@@ -20,7 +25,6 @@ export const TimeButton = styled.TouchableOpacity`
     margin-top: 5px;
     margin-bottom: 5px;
     border-radius: 10px;
-    
 `;
 
 export const TimeText = styled.Text`

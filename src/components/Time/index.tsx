@@ -6,36 +6,36 @@ import {
     TimeText
 } from './styles';
 
-interface TimeProps {
-    onPress: Dispatch<SetStateAction<null>>;
-    times: string[];
-    disableds: string[];
-    timeSelected: any;
+interface TimeComponentProps {
+    onPress: Dispatch<SetStateAction<TimeProps | null>>;
+    times: TimeProps[];
+    disableds: TimeProps[];
+    timeSelected: TimeProps | null;
 }
 
-const Time: React.FC<TimeProps> = ({ onPress, times = [], disableds = [], timeSelected = null }) => {
+const Time: React.FC<TimeComponentProps> = ({ onPress, times = [], disableds = [], timeSelected = null }) => {
 
     function handlePressTime(time: any) {
         onPress(time)
     }
 
-    function renderItem(item: string, key: number) {
+    function renderItem(item: TimeProps, key: number) {
         var item_disabled = false;
 
         disableds.map(disabled => {
-            if (disabled === item) {
+            if (disabled.id === item.id) {
                 item_disabled = true;
             }
         });
 
         return (
-            <TimeButton 
+            <TimeButton
                 key={key} 
                 disabled={item_disabled} 
                 onPress={() => handlePressTime(item) } 
-                selected={timeSelected === item}
+                selected={timeSelected && timeSelected.id === item.id}
             >
-                <TimeText>{item}</TimeText>
+                <TimeText>{item.name}</TimeText>
             </TimeButton>
         );
     }

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
+import { RefreshControl } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 
 LocaleConfig.locales['br'] = {
@@ -28,6 +29,8 @@ import {
 
 import api from '../../services/api';
 import TimeLoading from '../../components/TimeLoading';
+import { showMessage } from 'react-native-flash-message';
+import FormLoading from '../../components/FormLoading';
 
 const categories = [
     {
@@ -53,19 +56,56 @@ interface MinMaxDate {
     min: string;
 }
 
-const ReservationStore = ( ) => {
+const ReservationStore = () => {
 
     const navigation = useNavigation();
+    const { params } = useRoute();
 
     const [markedDate, setMarkedDate] = useState({});
     const [datesDisabled, setDatesDisabled] = useState({});
-    const [timeSelected, setTimeSelected] = useState(null);
+    const [timeSelected, setTimeSelected] = useState<TimeProps | null>(null);
     const [categorySelected, setCategorySelected] = useState(null);
     const [minMaxDate, setMinMaxDate] = useState<MinMaxDate>({ min: '', max: '' });
-    const [times, setTimes] = useState<string[]>([]);
-    const [timesBusy, setTimesBusy] = useState<string[]>([]);
+    const [times, setTimes] = useState<TimeProps[]>([]);
+    const [timesBusy, setTimesBusy] = useState<TimeProps[]>([]);
+    const [note, setNote] = useState('');
+
     const [loadingDate, setLoadingDate] = useState(true);
     const [loadingTime, setLoadingTime] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    useEffect(() => {
+        loadingMaxMinDate();
+    }, []);
+
+    function loadingMaxMinDate() {
+        api.get('/dates').then(response => {
+            setMinMaxDate(response.data.range_date);
+            setDatesDisabled(response.data.dates_disabled);
+            setMarkedDate(response.data.dates_disabled);
+            setRefreshing(false);
+            setLoadingDate(false);
+        }).catch(error => {
+            setRefreshing(false);
+            if (error.request) {
+                showMessage({
+                    message: 'Tempo de espera atingido. Por favor, tente novamente.',
+                    animated: true,
+                    type: 'danger',
+                });
+            } else {
+                showMessage({
+                    message: error.message,
+                    animated: true,
+                    type: 'danger',
+                });
+            }
+        });
+    }
 
     function handleSelectDate(day: any) {
         setLoadingTime(true);
@@ -76,65 +116,136 @@ const ReservationStore = ( ) => {
             setTimes(response.data.times);
             setTimesBusy(response.data.timesBusy);
             setLoadingTime(false);
-        }).catch(error => {});
+        }).catch(error => {
+            if (error.request) {
+                showMessage({
+                    message: 'Tempo de espera atingido. Por favor, tente novamente.',
+                    animated: true,
+                    type: 'danger',
+                });
+            } else {
+                showMessage({
+                    message: error.message,
+                    animated: true,
+                    type: 'danger',
+                });
+            }
+        });
     }
 
-    useEffect(()=>{
-        function loadingMaxMinDate(){
-            api.get('/dates').then(response => {
-                setMinMaxDate(response.data.range_date);
-                setDatesDisabled(response.data.dates_disabled);
-                setMarkedDate(response.data.dates_disabled);
-                setLoadingDate(false);
-            }).catch(error => {});
-        } 
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        setMarkedDate({});
+        setMinMaxDate({ min: '', max: '' });
+        setDatesDisabled({});
+        setLoadingDate(true);
+        setLoadingTime(true);
         loadingMaxMinDate();
-    },[]);
+    }, []);
+
+    async function formCreateReservation() {
+        if (timeSelected) {
+            var reservation_date = null;
+            Object.entries(markedDate).map(function (key: any) {
+                if (key[1] && key[1]!.selected) {
+                    reservation_date = key[0];
+                }
+            });
+            if (reservation_date) {
+                setLoading(true);
+                api.post('/reservations', {
+                    date: reservation_date,
+                    note,
+                    id_time: timeSelected.id
+                }).then(response => {
+                    setSuccessMessage('Reserva criada com sucesso.');
+                    setTimeout(() => {
+                        navigation.reset({
+                            index: 0,
+                            routes: [{ name: 'ReservationStack' }]
+                        });
+                    }, 2000);
+                }).catch(error => {
+                    setErrorMessage(error.response ? error.response.data.error : 'Erro ao cadastrar reserva.');
+                    setTimeout(() => {
+                        setLoading(false);
+                        setErrorMessage(null);
+                    }, 2000);
+                });
+            }
+        }
+    }
 
     return (
         <ContainerComponent>
-            <Header title="Reserva" backButton/>
-            <Container>
+            {loading && (
+                <FormLoading
+                    loading={!successMessage && !errorMessage}
+                    success={successMessage}
+                    error={errorMessage}
+                />
+            )}
+
+            <Header title="Reserva" backButton />
+            <Container
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+            >
                 <Label title="Data" />
                 <Line />
                 <SubLabel title="Por favor, selecione uma data" />
 
-                <Calendar
-                    onDayPress={day => handleSelectDate(day)}
-                    markedDates={markedDate}
+                {refreshing || loadingDate ? (
+                    <Calendar
+                        firstDay={1}
+                        disableArrowLeft={true}
+                        disableArrowRight={true}
+                        style={{
+                            borderRadius: 15,
+                            paddingBottom: 5,
+                        }}
+                        disabledByDefault={true}
+                    />
+                ) : (
+                        <Calendar
+                            onDayPress={day => handleSelectDate(day)}
+                            markedDates={markedDate}
+                            firstDay={1}
+                            disableArrowLeft={true}
+                            disableArrowRight={true}
+                            style={{
+                                borderRadius: 15,
+                                paddingBottom: 5,
+                            }}
+                            minDate={minMaxDate.min}
+                            maxDate={minMaxDate.max}
+                        />
+                    )}
 
-                    firstDay={1}
-                    disableArrowLeft={true}
-                    disableArrowRight={true}
-                    style={{
-                        borderRadius: 15,
-                        paddingBottom: 5,
-                    }}
-                    minDate={minMaxDate.min}
-                    maxDate={minMaxDate.max}
-                />
+
                 <Label title="Horário" style={{ marginTop: 10, }} />
                 <Line />
                 <SubLabel title="Por favor, selecione um horário" />
                 {loadingTime ? (
                     <TimeLoading />
                 ) : (
-                    <Time
-                        times={times}
-                        disableds={timesBusy}
-                        onPress={setTimeSelected}
-                        timeSelected={timeSelected}
-                    />
-                )}
+                        <Time
+                            times={times}
+                            disableds={timesBusy}
+                            onPress={setTimeSelected}
+                            timeSelected={timeSelected}
+                        />
+                    )}
 
-                <Label title="Categorias" style={{ marginTop: 10, }} />
+                {/* <Label title="Categorias" style={{ marginTop: 10, }} />
                 <Line />
                 <SubLabel title="Por favor, selecione uma categoria" />
                 <Category 
                     categories={categories}
                     onPress={setCategorySelected} 
                     categorySelected={categorySelected}
-                />
+                /> */}
 
                 <Label title="Nota" style={{ marginTop: 10, }} />
                 <Line />
@@ -148,16 +259,19 @@ const ReservationStore = ( ) => {
                     style={{
                         textAlignVertical: 'top',
                     }}
+                    value={note}
+                    onChangeText={setNote}
                 />
 
-                <Button 
-                    title="Reservar" 
-                    style={{ 
+                <Button
+                    title="Reservar"
+                    style={{
                         marginTop: 10,
                         marginBottom: 50,
                         alignSelf: 'center',
                     }}
-                    onPress={ () => navigation.goBack }
+                    disabled={!!!timeSelected}
+                    onPress={formCreateReservation}
                 />
             </Container>
         </ContainerComponent>

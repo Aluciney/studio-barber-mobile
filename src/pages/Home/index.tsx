@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FlatList, Image, BackHandler } from 'react-native';
+import { View, FlatList, Image, BackHandler, TouchableOpacity, Text } from 'react-native';
+import { showMessage, hideMessage } from 'react-native-flash-message';
+
+import { MaterialCommunityIcons } from '@expo/vector-icons'; 
 
 import api from '../../services/api'; 
 
@@ -34,6 +37,45 @@ const Home: React.FC<HomeProps> = () => {
     const [next, setNext] = useState(false);
     const [loading, setLoading] = useState(true);
     const [services, setServices] = useState<ServiceProps[] | null>(null);
+    const [errorRequest, setErrorRequest] = useState(false);
+
+    useEffect(() => {
+        initialLoading();
+    },[]);
+
+    async function initialLoading(){
+        setLoading(true);
+        api.get('/services').then((response) =>{
+            setServices(response.data);
+            setLoading(false);
+            setErrorRequest(false);
+        }).catch((error) => {
+            setLoading(false);
+            setErrorRequest(true);
+            if (error.response) {
+                showMessage({
+                    message: 'Aconteceu algum erro. Contate o administrador.',
+                    animated: true,
+                    type: 'danger',
+                    autoHide: false
+                });
+            } else if (error.request) {
+                showMessage({
+                    message: 'Tempo de espera atingido. Por favor, tente novamente.',
+                    animated: true,
+                    type: 'danger',
+                    autoHide: false
+                });
+            } else {
+                showMessage({
+                    message: error.message,
+                    animated: true,
+                    type: 'danger',
+                    autoHide: false
+                });
+            }
+        });
+    }
 
     function renderItem({ item }: ItemsProps) {
         return (
@@ -45,25 +87,11 @@ const Home: React.FC<HomeProps> = () => {
         );
     }
 
-    const onSelect = useCallback(
-        id => {
-            const newSelected = new Map(selected);
-            newSelected.set(id, !selected.get(id));
-
-            setSelected(newSelected);
-        },
-        [selected],
-    );
-
-    useEffect(() => {
-        setLoading(true);
-        async function initialLoading(){
-            const response = await api.get('/services');
-            setServices(response.data);
-            setLoading(false);
-        }
-        initialLoading();
-    },[]);
+    const onSelect = useCallback((id) => {
+        const newSelected = new Map(selected);
+        newSelected.set(id, !selected.get(id));
+        setSelected(newSelected);
+    },[selected]);
 
     useEffect(() => {
         var verify = false;
@@ -73,7 +101,7 @@ const Home: React.FC<HomeProps> = () => {
             }
         });
         setNext(verify);
-    }, [selected]);
+    },[selected]);
 
     useEffect(() => {
         if (next) {
@@ -94,7 +122,7 @@ const Home: React.FC<HomeProps> = () => {
                 backHandler.remove();
             }
         }
-    }, [next]);
+    },[next]);
 
     function backAction() {
         setSelected(new Map())
@@ -111,6 +139,13 @@ const Home: React.FC<HomeProps> = () => {
         navigation.navigate('ReservationStore', { ids_services });
     }
 
+    const onRefresh = useCallback(() => {
+        hideMessage();
+        setSelected(new Map());
+        setNext(false);
+        initialLoading();
+    }, []);
+
     return (
         <ContainerComponent >
             <GroupView style={{ marginTop: 40, paddingBottom: 0, }}>
@@ -119,7 +154,28 @@ const Home: React.FC<HomeProps> = () => {
             </GroupView>
             <GroupView>
                 <Label title="Serviços" style={{ marginLeft: 0, }} />
-                {loading ? (
+                {!loading && errorRequest ? (
+                    <View
+                        style={{
+                            height: 200,
+                            width: '100%',
+                            marginTop: 10,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <TouchableOpacity 
+                            onPress={onRefresh}
+                            style={{
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <MaterialCommunityIcons name="reload" size={50} color="#FFF" />
+                            <Text style={{ fontSize: 25, color: '#B5B5B5' }}>Tentar novamente</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : loading ? (
                     <ServiceLoading quantidade={6}/>
                 ) : (
                     <FlatList
@@ -135,6 +191,8 @@ const Home: React.FC<HomeProps> = () => {
                             height: '100%',
                             marginTop: 10,
                         }}
+                        onRefresh={onRefresh}
+                        refreshing={loading}
                         persistentScrollbar
                     />
                 )}

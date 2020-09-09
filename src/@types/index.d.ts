@@ -12,3 +12,8 @@ interface ServiceProps {
     name: string;
     image_url: string;
 }
+
+interface TimeProps {
+    id: number;
+    name: string;
+}
