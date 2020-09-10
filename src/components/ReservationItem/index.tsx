@@ -1,6 +1,6 @@
-import React from 'react';
-
-import { FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import { FlatList, AsyncStorage } from 'react-native';
 
 import Line from '../Line';
 
@@ -60,15 +60,38 @@ interface ReservationItemProps {
 }
 
 interface ReservationItemUnitProps {
-    item: {
-        id: number;
-        date: string;
-        time: string;
-        remain?: string;
-    }
+    item: ReservationProps & ReservationLoadedProps;
+}
+
+interface ReservationLoadedProps {
+    remain?: string;
 }
 
 const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
+    const navigation = useNavigation();
+    const [reservations, setReservations] = useState<ReservationProps[] | []>([]);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', async () => {
+            initialLoading();
+        });
+        return () => unsubscribe();
+     }, [navigation]);
+
+    async function initialLoading(){
+        const reservationsStorageString = await AsyncStorage.getItem('@studio-barber-mobile:reservations');
+        if(reservationsStorageString){
+            var reservationsStorage = JSON.parse(reservationsStorageString);
+            // var reservationsFormated = reservationsStorage.map((reservationStorage: ReservationProps) => {
+            //     return {
+            //         ...reservationStorage,
+            //         data: reservationStorage.date.split('-').reverse().join('/'),
+            //         remain: 
+            //     }
+            // })
+            setReservations(JSON.parse(reservationsStorage));
+        }
+    }
 
     function renderItem({ item }: ReservationItemUnitProps) {
         return (
@@ -77,8 +100,8 @@ const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
                     <ContainerReservation>
                         <DateReservationText>{item.date}</DateReservationText>
                         <GroupViewReservation>
-                            <ReservationTimeText>{item.time.split(' ')[0]}</ReservationTimeText>
-                            <ReservationTypeTimeText>{item.time.split(' ')[1]}</ReservationTypeTimeText>
+                            <ReservationTimeText>{item.time[0].name.split(' ')[0]}</ReservationTimeText>
+                            <ReservationTypeTimeText>{item.time[0].name.split(' ')[1]}</ReservationTypeTimeText>
                         </GroupViewReservation>
                     </ContainerReservation>
                     {item.remain && (

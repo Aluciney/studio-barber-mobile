@@ -17,3 +17,11 @@ interface TimeProps {
     id: number;
     name: string;
 }
+
+interface ReservationProps {
+    id: number;
+    date: string;
+    note: string;
+    time: TimeProps[];
+    service: ServiceProps[];
+}
