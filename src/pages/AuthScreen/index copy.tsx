@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Animated, Keyboard } from 'react-native';
 
 import {
@@ -40,15 +40,6 @@ const Login: React.FC = () => {
         }
         
     }
-
-    useEffect(()=>{
-        const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
-        const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
-        return () => {
-            keyboardDidShowListener.remove();
-            keyboardDidHideListener.remove();
-        }
-    },[]);
 
     function _keyboardDidShow () {
         Animated.timing(widthLogo,{
@@ -102,6 +93,8 @@ const Login: React.FC = () => {
                     <SubLabel title="E-mail" style={{ alignSelf: 'flex-start', marginBottom: 5, marginLeft: 20, }} />
                     <ContainerFormInput >
                         <FormInputText
+                            onBlur={_keyboardDidHide}
+                            onFocus={_keyboardDidShow}
                             autoCompleteType="email"
                             keyboardType="email-address"
                             autoCapitalize="none"
@@ -114,6 +107,8 @@ const Login: React.FC = () => {
                     <SubLabel title="Senha" style={{ fontSize: 12, alignSelf: 'flex-start', marginBottom: 5, marginLeft: 20, }} />
                     <ContainerFormInput >
                         <FormInputText
+                            onBlur={_keyboardDidHide}
+                            onFocus={_keyboardDidShow}
                             autoCapitalize="none"
                             autoCorrect={false}
                             secureTextEntry

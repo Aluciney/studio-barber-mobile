@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, AsyncStorage } from 'react-native';
+import moment from 'moment';
 
 import Line from '../Line';
 
@@ -17,46 +18,8 @@ import {
     ReservationTypeTimeText
 } from './styles';
 
-const reservations = [
-    {
-        id: 1,
-        date: '13/07/2020',
-        time: '08:00 AM',
-        remain: 'Hoje',
-    },
-    {
-        id: 2,
-        date: '16/07/2020',
-        time: '09:00 PM',
-        remain: 'Faltam 3 dias',
-    },
-    {
-        id: 3,
-        date: '13/08/2020',
-        time: '09:00 PM',
-    },
-    {
-        id: 4,
-        date: '16/07/2020',
-        time: '09:00 PM',
-        remain: 'Faltam 3 dias',
-    },
-    {
-        id: 5,
-        date: '16/07/2020',
-        time: '09:00 PM',
-    },
-    {
-        id: 6,
-        date: '16/07/2020',
-        time: '09:00 PM',
-        remain: 'Faltam 3 dias',
-    },
-
-];
-
 interface ReservationItemProps {
-    onPress?: (id: number) => void;
+    onPress?: (reservation: ReservationProps) => void;
 }
 
 interface ReservationItemUnitProps {
@@ -70,38 +33,89 @@ interface ReservationLoadedProps {
 const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
     const navigation = useNavigation();
     const [reservations, setReservations] = useState<ReservationProps[] | []>([]);
+    const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
             initialLoading();
         });
         return () => unsubscribe();
-     }, [navigation]);
+    }, [navigation]);
 
     async function initialLoading(){
+        setRefreshing(true);
         const reservationsStorageString = await AsyncStorage.getItem('@studio-barber-mobile:reservations');
         if(reservationsStorageString){
             var reservationsStorage = JSON.parse(reservationsStorageString);
-            // var reservationsFormated = reservationsStorage.map((reservationStorage: ReservationProps) => {
-            //     return {
-            //         ...reservationStorage,
-            //         data: reservationStorage.date.split('-').reverse().join('/'),
-            //         remain: 
-            //     }
-            // })
-            setReservations(JSON.parse(reservationsStorage));
+            var reservationsFormated: (ReservationProps & ReservationLoadedProps)[] = [];
+            var reservationsFormatedExpired: (ReservationProps & ReservationLoadedProps)[] = [];
+            var reservationsFormatedOrdened: (ReservationProps & ReservationLoadedProps)[]  = [];
+            
+            reservationsStorage.map((reservationStorage: ReservationProps) => {
+                var remain = null;
+                var hoje = moment(new Date()).format('YYYY-MM-DD');
+                var diferenca = moment(reservationStorage.date).diff(hoje, 'days');
+                if(diferenca <= 7 && diferenca >= 0){
+                    if(diferenca === 0){
+                        remain = 'Hoje';
+                    }else{
+                        remain = `Faltam ${diferenca} dia${diferenca !== 1 ? 's' : ''}`;
+                    }
+                }
+                if(diferenca >= 0){
+                    reservationsFormated.push({
+                        ...reservationStorage,
+                        date: reservationStorage.date.split('-').reverse().join('/'),
+                        time: {
+                            ...reservationStorage.time,
+                            time:  moment(reservationStorage.time.time, ['HH:mm']).format('hh:mm A'),
+                        },
+                        remain: remain ?? undefined,
+                    });
+                }else{
+                    reservationsFormatedExpired.push({
+                        ...reservationStorage,
+                        date: reservationStorage.date.split('-').reverse().join('/'),
+                        time: {
+                            ...reservationStorage.time,
+                            time:  moment(reservationStorage.time.time, ['HH:mm']).format('hh:mm A'),
+                        },
+                    });
+                }
+            });
+
+            reservationsFormated.sort(function(a: ReservationProps, b: ReservationProps) {
+                var a_ = a.date.split('/').reverse().join('');
+                var b_ = b.date.split('/').reverse().join('');
+                return a_ > b_ ? 1 : a_ < b_ ? -1 : 0;
+            });
+
+            reservationsFormatedExpired.sort(function(a: ReservationProps, b: ReservationProps) {
+                var a_ = a.date.split('/').reverse().join('');
+                var b_ = b.date.split('/').reverse().join('');
+                return a_ < b_ ? 1 : a_ > b_ ? -1 : 0;
+            });
+
+            reservationsFormatedOrdened.push(...reservationsFormated, ...reservationsFormatedExpired);
+
+            setReservations(reservationsFormatedOrdened);
         }
+        setRefreshing(false);
     }
+
+    const onRefresh = useCallback(() => {
+        initialLoading();
+    }, []);
 
     function renderItem({ item }: ReservationItemUnitProps) {
         return (
             <>
-                <ButtonReservation activeOpacity={0.6} onPress={ () => onPress!(item.id) }>
+                <ButtonReservation activeOpacity={0.6} onPress={ () => onPress!(item) }>
                     <ContainerReservation>
                         <DateReservationText>{item.date}</DateReservationText>
                         <GroupViewReservation>
-                            <ReservationTimeText>{item.time[0].name.split(' ')[0]}</ReservationTimeText>
-                            <ReservationTypeTimeText>{item.time[0].name.split(' ')[1]}</ReservationTypeTimeText>
+                            <ReservationTimeText>{item.time.time.split(' ')[0]}</ReservationTimeText>
+                            <ReservationTypeTimeText>{item.time.time.split(' ')[1]}</ReservationTypeTimeText>
                         </GroupViewReservation>
                     </ContainerReservation>
                     {item.remain && (
@@ -138,6 +152,8 @@ const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
                     paddingTop: 20,
                     paddingBottom: 80,
                 }}
+                onRefresh={onRefresh}
+                refreshing={refreshing}
             />
         </Container>
     );

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 
-import { RefreshControl } from 'react-native';
+import { RefreshControl, AsyncStorage } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 
 LocaleConfig.locales['br'] = {
@@ -31,6 +31,7 @@ import api from '../../services/api';
 import TimeLoading from '../../components/TimeLoading';
 import { showMessage } from 'react-native-flash-message';
 import FormLoading from '../../components/FormLoading';
+import moment from 'moment';
 
 const categories = [
     {
@@ -56,10 +57,14 @@ interface MinMaxDate {
     min: string;
 }
 
+interface RouteParamsProps {
+    ids_services: number[];
+}
+
 const ReservationStore = () => {
 
     const navigation = useNavigation();
-    const { params } = useRoute();
+    const route = useRoute<RouteProp<Record<string, RouteParamsProps>, string>>();
 
     const [markedDate, setMarkedDate] = useState({});
     const [datesDisabled, setDatesDisabled] = useState({});
@@ -89,6 +94,10 @@ const ReservationStore = () => {
             setMarkedDate(response.data.dates_disabled);
             setRefreshing(false);
             setLoadingDate(false);
+            var date_now = { dateString: moment(new Date()).format('YYYY-MM-DD') };
+            if(!response.data.dates_disabled[date_now.dateString]){
+                handleSelectDate(date_now);
+            }
         }).catch(error => {
             setRefreshing(false);
             if (error.request) {
@@ -157,7 +166,15 @@ const ReservationStore = () => {
                     date: reservation_date,
                     note,
                     id_time: timeSelected.id
-                }).then(response => {
+                }).then(async response => {
+                    const reservationsStorageString = await AsyncStorage.getItem('@studio-barber-mobile:reservations');
+                    if(reservationsStorageString){
+                        var news_reservation_store = JSON.parse(reservationsStorageString);
+                        news_reservation_store.push(response.data);
+                        await AsyncStorage.setItem('@studio-barber-mobile:reservations', JSON.stringify(news_reservation_store));
+                    }else{
+                        await AsyncStorage.setItem('@studio-barber-mobile:reservations', JSON.stringify([response.data]));
+                    }
                     setSuccessMessage('Reserva criada com sucesso.');
                     setTimeout(() => {
                         navigation.reset({

@@ -15,13 +15,13 @@ interface ServiceProps {
 
 interface TimeProps {
     id: number;
-    name: string;
+    time: string;
 }
 
 interface ReservationProps {
     id: number;
     date: string;
     note: string;
-    time: TimeProps[];
+    time: TimeProps;
     service: ServiceProps[];
 }

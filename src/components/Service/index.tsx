@@ -11,14 +11,14 @@ import {
 interface ServicesProps {
     service: ServiceProps;
     selected: boolean;
-    onSelect: (id: number) => void;
+    onSelect?: (id: number) => void;
     disabled?: boolean;
 }
 
 const Service: React.FC<ServicesProps> = ({ service, selected, onSelect, disabled = false }) => {
     return (
         <Container 
-            onPress={() => onSelect(service.id)} 
+            onPress={() => onSelect!(service.id)} 
             style={selected && {
                 borderColor: '#FF9100',
                 borderWidth: 2,
