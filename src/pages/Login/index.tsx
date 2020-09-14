@@ -45,7 +45,7 @@ const Login: React.FC = () => {
         Animated.timing(widthLogo,{
             toValue: 0.5,
             duration: 300,
-            useNativeDriver: true,
+            useNativeDriver: false,
         }).start();
     }
     
@@ -53,7 +53,7 @@ const Login: React.FC = () => {
         Animated.timing(widthLogo,{
             toValue: 1,
             duration: 300,
-            useNativeDriver: true,
+            useNativeDriver: false,
         }).start();
     }
 

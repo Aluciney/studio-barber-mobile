@@ -45,7 +45,8 @@ export const AuthProvider: React.FC = ({ children }) => {
                 setLoading(false);
                 showMessage({
                     message: reponse.error,
-                    type: "danger",
+                    type: 'danger',
+                    icon: 'danger',
                 });
             }
         }

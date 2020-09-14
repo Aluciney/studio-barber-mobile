@@ -7,7 +7,7 @@ const { Navigator, Screen } = createStackNavigator();
 
 import UserLayout from '../layouts/UserLayout';
 
-import AuthScreen from '../pages/AuthScreen';
+import Login from '../pages/Login';
 
 import { useAuth } from '../contexts/auth';
 
@@ -19,7 +19,7 @@ const Routes: React.FC = () => {
       <Navigator
         screenOptions={{ headerShown: false }}
       >
-        <Screen name="AuthScreen" component={AuthScreen} />
+        <Screen name="Login" component={Login} />
       </Navigator>
     );
   }

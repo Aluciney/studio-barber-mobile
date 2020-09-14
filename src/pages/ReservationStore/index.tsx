@@ -105,12 +105,14 @@ const ReservationStore = () => {
                     message: 'Tempo de espera atingido. Por favor, tente novamente.',
                     animated: true,
                     type: 'danger',
+                    icon: 'danger',
                 });
             } else {
                 showMessage({
                     message: error.message,
                     animated: true,
                     type: 'danger',
+                    icon: 'danger',
                 });
             }
         });
@@ -131,12 +133,14 @@ const ReservationStore = () => {
                     message: 'Tempo de espera atingido. Por favor, tente novamente.',
                     animated: true,
                     type: 'danger',
+                    icon: 'danger',
                 });
             } else {
                 showMessage({
                     message: error.message,
                     animated: true,
                     type: 'danger',
+                    icon: 'danger',
                 });
             }
         });

@@ -57,7 +57,8 @@ const Home: React.FC<HomeProps> = () => {
                     message: 'Aconteceu algum erro. Contate o administrador.',
                     animated: true,
                     type: 'danger',
-                    autoHide: false
+                    autoHide: false,
+                    icon: 'danger',
                 });
             } else if (error.request) {
                 showMessage({
@@ -71,7 +72,8 @@ const Home: React.FC<HomeProps> = () => {
                     message: error.message,
                     animated: true,
                     type: 'danger',
-                    autoHide: false
+                    autoHide: false,
+                    icon: 'danger',
                 });
             }
         });
