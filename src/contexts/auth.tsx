@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, Dispatch, SetStateAction } from 'react';
 import { AsyncStorage } from  'react-native';
-import { showMessage, hideMessage } from 'react-native-flash-message';
+import { showMessage } from 'react-native-flash-message';
 
 import * as auth from '../services/auth';
 

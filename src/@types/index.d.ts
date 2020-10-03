@@ -11,6 +11,8 @@ interface ServiceProps {
     id: number;
     name: string;
     image_url: string;
+    number_of_time: number;
+    value: number;
 }
 
 interface TimeProps {

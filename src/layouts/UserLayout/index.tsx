@@ -47,14 +47,10 @@ const UserLayout: React.FC = () => {
     switch (routeName) {
       case 'ReservationShow':
         return false;
-        break;
       case 'ReservationUpdate':
         return false;
-        break;
-
       default:
         return true;
-        break;
     }
   }
 

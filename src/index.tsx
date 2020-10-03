@@ -1,5 +1,4 @@
 import React from 'react';
-import * as Notifications from 'expo-notifications';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import FlashMessage from 'react-native-flash-message';
 import { AuthProvider } from './contexts/auth';
