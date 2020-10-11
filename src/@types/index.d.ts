@@ -1,6 +1,7 @@
 declare module '*.png';
 
 interface UserProps {
+    id: number;
     name: string;
     email: string;
     avatar_url: string;
@@ -11,7 +12,6 @@ interface ServiceProps {
     id: number;
     name: string;
     image_url: string;
-    number_of_time: number;
     value: number;
 }
 
@@ -26,4 +26,12 @@ interface ReservationProps {
     note: string;
     time: TimeProps;
     service: ServiceProps[];
+    reservation_service_times: ReservationServiceTimeProps[];
+}
+
+
+interface ReservationServiceTimeProps {
+    id: number;
+    service: ServiceProps;
+    time: TimeProps;
 }

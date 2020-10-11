@@ -10,7 +10,9 @@ const ReservationIndex: React.FC = () => {
     return (
         <ContainerComponent>
             <Header title="Reservas" />
-            <ReservationItem  onPress={( reservation: ReservationProps ) => navigation.navigate('ReservationShow', { reservation } )}/>
+            <ReservationItem  
+                onPress={( reservation: ReservationProps ) => navigation.navigate('ReservationShow', { reservation } )}
+            />
         </ContainerComponent>
     );
 }

@@ -2,11 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 
 import ContainerComponent from '../../components/ContainerComponent';
-import Loading from '../../components/Loading';
 import Header from '../../components/Header';
 import Label from '../../components/Label';
 import Line from '../../components/Line';
-import Category from '../../components/Category';
 import Service from '../../components/Service';
 
 import {
@@ -20,9 +18,10 @@ import {
     ReservationTypeTimeText,
     RemainSmallText,
     RemainLargeText,
-    NoteInput
+    NoteInput,
+    NoteInputText
 } from './styles';
-import { FlatList } from 'react-native';
+import { FlatList, View } from 'react-native';
 
 interface RouteReservationProps {
     reservation: ReservationProps & ReservationLoadedProps;
@@ -38,11 +37,18 @@ interface Item {
 }
 
 const ReservationShow: React.FC = () => {
-
     const navigation = useNavigation();
     const route = useRoute<RouteProp<Record<string, RouteReservationProps>, string>>();
 
     const [reservation] = useState<ReservationProps & ReservationLoadedProps>(route.params?.reservation);
+
+    const services: ServiceProps[] = reservation.reservation_service_times.map(reservation_service_time => {
+        var value = reservation_service_time.service.value.toString();
+        return {
+            ...reservation_service_time.service,
+            value: parseFloat(value)
+        };
+    });
 
     const { data } = useMemo(() => {
         const items: Item[] = [
@@ -79,33 +85,19 @@ const ReservationShow: React.FC = () => {
                     <>
                         <Label title="Serviços" />
                         <Line />
-                        <Service
-                            service={{
-                                id: 1,
-                                name: 'Corte de cabelo',
-                                image_url: 'http://10.10.16.86:3001/uploads/4d88ed32ccc6-corte_cabelo.png',
-                            }}
-                            selected={true}
-                            disabled
-                        />
+                        <View style={{ flexDirection: 'row', }}>
+                        {services.map(service => (
+                            <Service
+                                key={service.id}
+                                service={service}
+                                selected={true}
+                                disabled
+                            />
+                        ))}
+                        </View>
                     </>
                 )
             },
-            // {
-            //     key: 'CATEGORIES',
-            //     render: () => (
-            //         <>
-            //             <Label title="Categoria" />
-            //             <Line />
-
-            //             <Category
-            //                 categories={[{ id: 1, name: 'Simples' }]}
-            //                 categorySelected={1}
-            //                 disabled
-            //             />
-            //         </>
-            //     )
-            // },
             {
                 key: 'NOTE',
                 render: () => (
@@ -114,8 +106,10 @@ const ReservationShow: React.FC = () => {
                         <Line />
 
                         <NoteInput>
-                            Eu acho que escri alguma coisa
-                            </NoteInput>
+                            <NoteInputText>
+                                {reservation.note}
+                            </NoteInputText>
+                        </NoteInput>
                     </>
                 )
             },
@@ -129,7 +123,6 @@ const ReservationShow: React.FC = () => {
             data: items,
         };
     }, []);
-
 
     return (
         <ContainerComponent>

@@ -28,7 +28,7 @@ export function signIn(email: string, password: string): Promise<SignInProps>{
             });
         }).catch(error => {
             resolve({
-                error: error.response.data.error ? error.response.data.error : 'Tivemos um problema. Tente novamente.'
+                error: error.response ? error.response.data.error : 'Tivemos um problema. Tente novamente.'
             });
         });
     });

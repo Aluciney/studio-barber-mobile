@@ -20,8 +20,13 @@ export const Label = styled.Text`
     color: #FFF;
     font-size: 12px;
     font-family: roboto_500;
-    margin-top: 8px;
-    margin-bottom: 1px;
+`;
+
+export const LabelValue = styled.Text`
+    color: #343538;
+    font-size: 14px;
+    font-family: roboto_500;
+    letter-spacing: 0.5px;
 `;
 
 export const ImageGloboService = styled.Image`

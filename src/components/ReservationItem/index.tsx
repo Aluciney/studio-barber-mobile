@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { FlatList, AsyncStorage } from 'react-native';
 import moment from 'moment';
+import api from '../../services/api';
+import { useAuth } from '../../contexts/auth';
 
 import Line from '../Line';
 
@@ -23,24 +25,40 @@ interface ReservationItemProps {
 }
 
 interface ReservationItemUnitProps {
-    item: ReservationProps & ReservationLoadedProps;
+    item: ReservationProps & ReservationLoadedProps & ReservationServiceTimeNewProps;
 }
 
 interface ReservationLoadedProps {
     remain?: string;
 }
 
+interface ReservationServiceTimeNewProps {
+    reservation_service_times: ReservationServiceTimeProps[];
+}
+
 const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
     const navigation = useNavigation();
     const [reservations, setReservations] = useState<ReservationProps[] | []>([]);
     const [refreshing, setRefreshing] = useState(false);
+    const { user } = useAuth();
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', async () => {
-            initialLoading();
+            getReservations();
         });
         return () => unsubscribe();
     }, [navigation]);
+
+    async function getReservations(){
+        setRefreshing(true);
+        await api.get(`/reservations?id_user=${user?.id}`)
+            .then( async response => {
+                await AsyncStorage.setItem('@studio-barber-mobile:reservations', JSON.stringify(response.data));
+            })
+            .catch(error => {});
+
+        initialLoading();
+    }
 
     async function initialLoading(){
         setRefreshing(true);
@@ -68,7 +86,7 @@ const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
                         date: reservationStorage.date.split('-').reverse().join('/'),
                         time: {
                             ...reservationStorage.time,
-                            time:  moment(reservationStorage.time.time, ['HH:mm']).format('hh:mm A'),
+                            time:  moment(reservationStorage.reservation_service_times[0].time.time, ['HH:mm']).format('hh:mm A'),
                         },
                         remain: remain ?? undefined,
                     });
@@ -78,7 +96,7 @@ const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
                         date: reservationStorage.date.split('-').reverse().join('/'),
                         time: {
                             ...reservationStorage.time,
-                            time:  moment(reservationStorage.time.time, ['HH:mm']).format('hh:mm A'),
+                            time:  moment(reservationStorage.reservation_service_times[0].time.time, ['HH:mm']).format('hh:mm A'),
                         },
                     });
                 }
@@ -104,7 +122,7 @@ const ReservationItem: React.FC<ReservationItemProps> = ({ onPress }) => {
     }
 
     const onRefresh = useCallback(() => {
-        initialLoading();
+        getReservations();
     }, []);
 
     function renderItem({ item }: ReservationItemUnitProps) {

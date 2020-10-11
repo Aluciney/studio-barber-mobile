@@ -20,35 +20,11 @@ import SubLabel from '../../components/SubLabel';
 import Line from '../../components/Line';
 import Time from '../../components/Time';
 import Button from '../../components/Button';
-import Category from '../../components/Category';
 
 import {
     Container,
     NoteInput
 } from './styles';
-
-const categories = [
-    {
-        id: 1,
-        name: 'Simples',
-    },
-    {
-        id: 2,
-        name: 'Degradê',
-    },
-    {
-        id: 3,
-        name: 'Degradê',
-    },
-    {
-        id: 4,
-        name: 'Degradê',
-    },
-    {
-        id: 5,
-        name: 'Degradê',
-    },
-];
 
 const ReservationUpdate = () => {
 
@@ -56,7 +32,6 @@ const ReservationUpdate = () => {
 
     const [markedDate, setMarkedDate] = useState({});
     const [timeSelected, setTimeSelected] = useState(null);
-    const [categorySelected, setCategorySelected] = useState(null);
     const [loading, setLoading] = useState(false);
 
     function handleSelectDate(day) {
@@ -91,14 +66,6 @@ const ReservationUpdate = () => {
                     disableds={['02:00 PM', '07:00 PM']}
                     onPress={setTimeSelected}
                     timeSelected={timeSelected}
-                />
-                <Label title="Categorias" style={{ marginTop: 10, }} />
-                <Line />
-                <SubLabel title="Por favor, selecione uma categoria" />
-                <Category 
-                    categories={categories}
-                    onPress={setCategorySelected} 
-                    categorySelected={categorySelected}
                 />
 
                 <Label title="Nota" style={{ marginTop: 10, }} />

@@ -20,7 +20,6 @@ import SubLabel from '../../components/SubLabel';
 import Line from '../../components/Line';
 import Time from '../../components/Time';
 import Button from '../../components/Button';
-import Category from '../../components/Category';
 
 import {
     Container,
@@ -32,25 +31,6 @@ import TimeLoading from '../../components/TimeLoading';
 import { showMessage } from 'react-native-flash-message';
 import FormLoading from '../../components/FormLoading';
 import moment from 'moment';
-
-const categories = [
-    {
-        id: 1,
-        name: 'Simples',
-    },
-    {
-        id: 2,
-        name: 'Degradê',
-    },
-    {
-        id: 3,
-        name: 'Degradê',
-    },
-    {
-        id: 4,
-        name: 'Degradê',
-    },
-];
 
 interface MinMaxDate {
     max: string;
@@ -69,7 +49,6 @@ const ReservationStore = () => {
     const [markedDate, setMarkedDate] = useState({});
     const [datesDisabled, setDatesDisabled] = useState({});
     const [timeSelected, setTimeSelected] = useState<TimeProps | null>(null);
-    const [categorySelected, setCategorySelected] = useState(null);
     const [minMaxDate, setMinMaxDate] = useState<MinMaxDate>({ min: '', max: '' });
     const [times, setTimes] = useState<TimeProps[]>([]);
     const [timesBusy, setTimesBusy] = useState<TimeProps[]>([]);
@@ -169,16 +148,9 @@ const ReservationStore = () => {
                 api.post('/reservations', {
                     date: reservation_date,
                     note,
-                    id_time: timeSelected.id
+                    id_time: timeSelected.id,
+                    id_services: route.params.ids_services
                 }).then(async response => {
-                    const reservationsStorageString = await AsyncStorage.getItem('@studio-barber-mobile:reservations');
-                    if(reservationsStorageString){
-                        var news_reservation_store = JSON.parse(reservationsStorageString);
-                        news_reservation_store.push(response.data);
-                        await AsyncStorage.setItem('@studio-barber-mobile:reservations', JSON.stringify(news_reservation_store));
-                    }else{
-                        await AsyncStorage.setItem('@studio-barber-mobile:reservations', JSON.stringify([response.data]));
-                    }
                     setSuccessMessage('Reserva criada com sucesso.');
                     setTimeout(() => {
                         navigation.reset({
@@ -251,22 +223,13 @@ const ReservationStore = () => {
                 {loadingTime ? (
                     <TimeLoading />
                 ) : (
-                        <Time
-                            times={times}
-                            disableds={timesBusy}
-                            onPress={setTimeSelected}
-                            timeSelected={timeSelected}
-                        />
-                    )}
-
-                {/* <Label title="Categorias" style={{ marginTop: 10, }} />
-                <Line />
-                <SubLabel title="Por favor, selecione uma categoria" />
-                <Category 
-                    categories={categories}
-                    onPress={setCategorySelected} 
-                    categorySelected={categorySelected}
-                /> */}
+                    <Time
+                        times={times}
+                        disableds={timesBusy}
+                        onPress={setTimeSelected}
+                        timeSelected={timeSelected}
+                    />
+                )}
 
                 <Label title="Nota" style={{ marginTop: 10, }} />
                 <Line />

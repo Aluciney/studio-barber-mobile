@@ -66,13 +66,17 @@ export const RemainSmallText = styled.Text`
     font-size: 12px;
 `;
 
-export const NoteInput = styled.Text`
+export const NoteInput = styled.View`
     width: 100%;
     height: 80px;
     padding: 10px;
     background-color: #4E4A57;
     border-radius: 10px;
     margin-bottom: 20px;
+`;
+
+export const NoteInputText = styled.Text`
     color: #FFF;
     font-size: 18px;
 `;
+
