@@ -7,7 +7,9 @@ const { Navigator, Screen } = createStackNavigator();
 
 import UserLayout from '../layouts/UserLayout';
 
-import Login from '../pages/Login';
+import Welcome from '../pages/Welcome';
+import SignIn from '../pages/SignIn';
+import SignUp from '../pages/SignUp';
 
 import { useAuth } from '../contexts/auth';
 
@@ -16,10 +18,10 @@ const Routes: React.FC = () => {
 
   function AuthStack() {
     return (
-      <Navigator
-        screenOptions={{ headerShown: false }}
-      >
-        <Screen name="Login" component={Login} />
+      <Navigator screenOptions={{ headerShown: false }} >
+        <Screen name="Welcome" component={Welcome} />
+        <Screen name="SignIn" component={SignIn} />
+        <Screen name="SignUp" component={SignUp} />
       </Navigator>
     );
   }

@@ -1,11 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { useRoute, useNavigation, RouteProp } from '@react-navigation/native';
 
-import ContainerComponent from '../../components/ContainerComponent';
-import Header from '../../components/Header';
-import Label from '../../components/Label';
-import Line from '../../components/Line';
-import Service from '../../components/Service';
+import ContainerComponent from '../../../components/ContainerComponent';
+import Header from '../../../components/Header';
+import Label from '../../../components/Label';
+import Line from '../../../components/Line';
+import ServiceComponent from '../../../components/Service';
 
 import {
     Container,
@@ -24,11 +24,12 @@ import {
 import { FlatList, View } from 'react-native';
 
 interface RouteReservationProps {
-    reservation: ReservationProps & ReservationLoadedProps;
+    reservation: Reservation & ReservationLoadedProps;
 }
 
 interface ReservationLoadedProps {
     remain?: string;
+    time: any;
 }
 
 interface Item {
@@ -40,12 +41,12 @@ const ReservationShow: React.FC = () => {
     const navigation = useNavigation();
     const route = useRoute<RouteProp<Record<string, RouteReservationProps>, string>>();
 
-    const [reservation] = useState<ReservationProps & ReservationLoadedProps>(route.params?.reservation);
+    const [reservation] = useState<Reservation & ReservationLoadedProps>(route.params?.reservation);
 
-    const services: ServiceProps[] = reservation.reservation_service_times.map(reservation_service_time => {
-        var value = reservation_service_time.service.value.toString();
+    const services: Service[] | any = reservation.reservation_service_times?.map(reservation_service_time => {
+        var value = reservation_service_time.service?.value.toString() || '00.00';
         return {
-            ...reservation_service_time.service,
+            ...reservation_service_time?.service,
             value: parseFloat(value)
         };
     });
@@ -86,8 +87,8 @@ const ReservationShow: React.FC = () => {
                         <Label title="Serviços" />
                         <Line />
                         <View style={{ flexDirection: 'row', }}>
-                        {services.map(service => (
-                            <Service
+                        {services.map((service: Service) => (
+                            <ServiceComponent
                                 key={service.id}
                                 service={service}
                                 selected={true}
@@ -136,7 +137,6 @@ const ReservationShow: React.FC = () => {
                     data={data}
                     renderItem={({ item }) => item.render()}
                     keyExtractor={(item) => item.key}
-                    // Refresh Effect
                     onRefresh={() => { }}
                     refreshing={false}
                 />

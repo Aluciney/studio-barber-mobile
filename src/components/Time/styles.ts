@@ -4,7 +4,7 @@ export const Container = styled.View`
     width: 100%;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: space-between;
 `;
 
 interface TimeButtonProps {
@@ -17,17 +17,16 @@ export const TimeButton = styled.TouchableOpacity<TimeButtonProps>`
     height: 30px;
     align-items: center;
     justify-content: center;
-    background-color: ${ (props: TimeButtonProps) => props.disabled ? '#B5B5B510' : props.selected ? '#99C791' : '#B5B5B570'};
-    padding-left: 10px;
-    padding-right: 10px;
-    margin-left: 5px;
-    margin-right: 5px;
-    margin-top: 5px;
-    margin-bottom: 5px;
+    background-color: ${ (props: TimeButtonProps) => props.disabled ? '#B5B5B544' : props.selected ? '#99C791' : '#FFF'};
+    padding: 0 10px 0 10px;
+    margin: 5px;
     border-radius: 10px;
+    border-color: #99C791;
+    border-style: solid;
+    border-bottom-width: 1px;
 `;
 
 export const TimeText = styled.Text`
-    color: #FFF;
+    color: #000;
     font-size: 20px;
 `;

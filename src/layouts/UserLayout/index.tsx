@@ -6,18 +6,18 @@ import { Ionicons } from '@expo/vector-icons';
 const { Navigator: StackNavigator, Screen: StackScreen } = createStackNavigator();
 const { Navigator: TabNavigator, Screen: TabScreen } = createBottomTabNavigator();
 
-import Home from '../../pages/Home';
+import Service from '../../pages/Service';
 import Profile from '../../pages/Profile';
-import ReservationIndex from '../../pages/ReservationIndex';
-import ReservationShow from '../../pages/ReservationShow';
-import ReservationUpdate from '../../pages/ReservationUpdate';
-import ReservationStore from '../../pages/ReservationStore';
+import ReservationIndex from '../../pages/Reservation/ReservationIndex';
+import ReservationShow from '../../pages/Reservation/ReservationShow';
+import ReservationUpdate from '../../pages/Reservation/ReservationUpdate';
+import ReservationStore from '../../pages/Reservation/ReservationStore';
 
 const UserLayout: React.FC = () => {
-  function HomeStack() {
+  function ServiceStack() {
     return (
       <StackNavigator screenOptions={{ headerShown: false }}>
-        <StackScreen name="Home" component={Home} />
+        <StackScreen name="Service" component={Service} />
         <StackScreen name="ReservationStore" component={ReservationStore} />
       </StackNavigator>
     );
@@ -39,7 +39,7 @@ const UserLayout: React.FC = () => {
     );
   }
 
-  function getTabBarVisible(route : any) {
+  function getTabBarVisible(route: any) {
     const routeName = route.state
       ? route.state.routes[route.state.index].name
       : route.params?.screen;
@@ -47,6 +47,8 @@ const UserLayout: React.FC = () => {
     switch (routeName) {
       case 'ReservationShow':
         return false;
+      case 'ReservationStore':
+          return false;
       case 'ReservationUpdate':
         return false;
       default:
@@ -57,8 +59,9 @@ const UserLayout: React.FC = () => {
   return (
     <TabNavigator
       tabBarOptions={{
+        showLabel: false,
         style: {
-          height: 60,
+          height: 50,
           backgroundColor: '#2a262f',
           borderTopWidth: 0,
         },
@@ -66,30 +69,20 @@ const UserLayout: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
         },
-        iconStyle: {
-          flex: 0,
-          width: 25,
-          height: 25,
-        },
-        labelStyle: {
-          fontFamily: 'roboto_400',
-          fontSize: 11,
-          marginTop: 3,
-        },
-        inactiveTintColor: '#B5B5B5',
+        inactiveTintColor: '#a0a0a0',
         activeTintColor: '#FFF',
       }}
     >
       <TabScreen
-        name="HomeStack"
-        component={HomeStack}
+        name="ServiceStack"
+        component={ServiceStack}
         options={{
-          title: 'Home',
+
           tabBarIcon: ({ size, color }) => {
             return (
               <Ionicons
                 name="md-home"
-                size={size}
+                size={30}
                 color={color}
               />
             );
@@ -106,7 +99,7 @@ const UserLayout: React.FC = () => {
             return (
               <Ionicons
                 name="md-calendar"
-                size={size}
+                size={30}
                 color={color}
               />
             );
@@ -122,7 +115,7 @@ const UserLayout: React.FC = () => {
             return (
               <Ionicons
                 name="md-settings"
-                size={size}
+                size={30}
                 color={color}
               />
             );

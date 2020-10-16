@@ -7,10 +7,10 @@ import {
 } from './styles';
 
 interface TimeComponentProps {
-    onPress: Dispatch<SetStateAction<TimeProps | null>>;
-    times: TimeProps[];
-    disableds: TimeProps[];
-    timeSelected: TimeProps | null;
+    onPress: Dispatch<SetStateAction<Time | null>>;
+    times: Time[];
+    disableds: Time[];
+    timeSelected: Time | null;
 }
 
 const Time: React.FC<TimeComponentProps> = ({ onPress, times = [], disableds = [], timeSelected = null }) => {
@@ -19,7 +19,7 @@ const Time: React.FC<TimeComponentProps> = ({ onPress, times = [], disableds = [
         onPress(time)
     }
 
-    function renderItem(item: TimeProps, key: number) {
+    function renderItem(item: Time, key: number) {
         var item_disabled = false;
 
         disableds.map(disabled => {
@@ -35,7 +35,9 @@ const Time: React.FC<TimeComponentProps> = ({ onPress, times = [], disableds = [
                 onPress={() => handlePressTime(item) } 
                 selected={timeSelected && timeSelected.id === item.id}
             >
-                <TimeText>{item.name}</TimeText>
+                <TimeText
+                    style={(timeSelected && timeSelected.id === item.id) && { color: '#FFF' } }
+                >{item.name}</TimeText>
             </TimeButton>
         );
     }

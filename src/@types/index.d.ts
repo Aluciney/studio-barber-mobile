@@ -1,37 +1,41 @@
 declare module '*.png';
 
-interface UserProps {
-    id: number;
-    name: string;
-    email: string;
-    avatar_url: string;
-    password_hash: string;
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar_url: string;
+  password_hash: string;
 }
 
-interface ServiceProps {
-    id: number;
-    name: string;
-    image_url: string;
-    value: number;
+interface Service {
+  id: number;
+  name: string;
+  image_url: string;
+  value: number;
+  active: boolean;
 }
 
-interface TimeProps {
-    id: number;
-    time: string;
+interface Reservation {
+  id: number;
+  id_user: number;
+  date: string;
+  note: string;
+  reservation_service_times?: ReservationServiceTime[];
 }
 
-interface ReservationProps {
-    id: number;
-    date: string;
-    note: string;
-    time: TimeProps;
-    service: ServiceProps[];
-    reservation_service_times: ReservationServiceTimeProps[];
+interface Time {
+  id: number;
+  time: string;
+  name?: string;
 }
 
-
-interface ReservationServiceTimeProps {
-    id: number;
-    service: ServiceProps;
-    time: TimeProps;
+interface ReservationServiceTime {
+  id: number;
+  id_reservation: number;
+  id_service: number;
+  id_time: number;
+  reservation?: Reservation;
+  service?: Service;
+  time?: Time;
 }

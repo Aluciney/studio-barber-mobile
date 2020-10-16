@@ -45,7 +45,7 @@ const FormLoading: React.FC<FormLoadingProps> = ({ error, success, loading }) =>
 				justifyContent: 'center',
 			}}
 		>
-			{loading && <SkypeIndicator color="#FCA129" size={100} style/> }
+			{loading && <SkypeIndicator color="#FCA129" size={100} /> }
 		</View>
 	);
 }

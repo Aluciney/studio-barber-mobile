@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import ContainerComponent from '../../components/ContainerComponent';
 import UserAvatar from '../../components/UserAvatar';
 import Line from '../../components/Line';

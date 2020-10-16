@@ -16,3 +16,9 @@ export const NoteInput = styled.TextInput`
     color: #FFF;
     font-size: 18px;
 `;
+
+export const TimeContainer = styled.View`
+    background-color: #FFF;
+    padding: 10px 5px;
+    border-radius: 15px;
+`;
